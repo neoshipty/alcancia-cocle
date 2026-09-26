@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+
+Dia_edu_Financie*.pdf
+Ejecucion.md
+historial_participantes.json
+metas_personalizadas.json
+Prompt.md

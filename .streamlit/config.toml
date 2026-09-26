@@ -1,0 +1,11 @@
+[theme]
+# Tema nativo para componentes de Streamlit dibujados fuera del alcance del CSS,
+# especialmente las celdas y encabezados de st.dataframe.
+base = "dark"
+primaryColor = "#35c98b"
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#152238"
+textColor = "#eaf2f7"
+borderColor = "#29405d"
+dataframeBorderColor = "#29405d"
+dataframeHeaderBackgroundColor = "#1d3150"
