@@ -5,6 +5,7 @@ from __future__ import annotations
 
 # Importa Any para describir diccionarios con valores de distintos tipos.
 from typing import Any
+
 # Importa utilidades estándar para conservar el historial entre ejecuciones.
 from datetime import datetime
 import json
@@ -12,9 +13,9 @@ from pathlib import Path
 
 # Importa Plotly para crear el gráfico interactivo.
 import plotly.graph_objects as go
+
 # Importa Streamlit con el nombre corto st para construir la interfaz web.
 import streamlit as st
-
 
 # Configura el título de la pestaña, el icono y el ancho de la página web.
 st.set_page_config(page_title="Alcancías en Coclé", layout="wide")
@@ -74,21 +75,31 @@ def guardar_metas_personalizadas(metas: list[dict[str, Any]]) -> None:
         json.dump(metas, archivo, ensure_ascii=False, indent=2)
 
 
-def registrar_calculo(nombre: str, gastos: list[dict[str, Any]], tasa: float, gasto_mensual_total: float, ahorro_5: float, ahorro_10: float) -> None:
+def registrar_calculo(
+    nombre: str,
+    gastos: list[dict[str, Any]],
+    tasa: float,
+    gasto_mensual_total: float,
+    ahorro_5: float,
+    ahorro_10: float,
+) -> None:
     """Añade al historial los datos principales de la simulación actual."""
     historial = cargar_historial()
-    historial.append({
-        "fecha": datetime.now().strftime("%d/%m/%Y %H:%M"),
-        "participante": nombre.strip() or "Participante sin nombre",
-        "cantidad_gastos": len(gastos),
-        "gastos": gastos,
-        "tasa_anual": tasa,
-        "gasto_mensual": gasto_mensual_total,
-        "gasto_anual": gasto_mensual_total * MESES_POR_ANIO,
-        "ahorro_potencial_5_anios": ahorro_5,
-        "ahorro_potencial_10_anios": ahorro_10,
-    })
+    historial.append(
+        {
+            "fecha": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "participante": nombre.strip() or "Participante sin nombre",
+            "cantidad_gastos": len(gastos),
+            "gastos": gastos,
+            "tasa_anual": tasa,
+            "gasto_mensual": gasto_mensual_total,
+            "gasto_anual": gasto_mensual_total * MESES_POR_ANIO,
+            "ahorro_potencial_5_anios": ahorro_5,
+            "ahorro_potencial_10_anios": ahorro_10,
+        }
+    )
     guardar_historial(historial)
+
 
 # Guarda cuántos meses tiene un año para reutilizar el valor en las fórmulas.
 MESES_POR_ANIO = 12
@@ -98,22 +109,34 @@ DIAS_POR_ANIO = 365
 SEMANAS_POR_ANIO = 52
 # Define los plazos que se mostrarán en la tabla de proyecciones.
 HORIZONTES = (1, 3, 5, 10)
-# Define metas sugeridas y sus costos iniciales; el visitante puede modificar el costo.
-METAS = {
-    "Laptop": 850.00,
-    "Motocicleta": 3500.00,
-    "Primer año de universidad": 2500.00,
-    "Abono inicial de una casa": 10000.00,
-    "Terreno": 15000.00,
-    "Fondo de emergencia": 3000.00,
-}
 
 # Paletas y acentos seleccionables desde la barra lateral.
 PALETAS = {
-    "Oscuro": {"fondo": "#0b1220", "superficie": "#152238", "lateral": "#101b2d", "borde": "#29405d", "texto": "#eaf2f7", "muted": "#a9bbca", "grafica": "plotly_dark"},
-    "Claro": {"fondo": "#f6f8fc", "superficie": "#ffffff", "lateral": "#edf2f8", "borde": "#cbd5e1", "texto": "#152238", "muted": "#52657a", "grafica": "plotly_white"},
+    "Oscuro": {
+        "fondo": "#0b1220",
+        "superficie": "#152238",
+        "lateral": "#101b2d",
+        "borde": "#29405d",
+        "texto": "#eaf2f7",
+        "muted": "#a9bbca",
+        "grafica": "plotly_dark",
+    },
+    "Claro": {
+        "fondo": "#f6f8fc",
+        "superficie": "#ffffff",
+        "lateral": "#edf2f8",
+        "borde": "#cbd5e1",
+        "texto": "#152238",
+        "muted": "#52657a",
+        "grafica": "plotly_white",
+    },
 }
-ACENTOS = {"Verde ahorro": "#35c98b", "Azul océano": "#5b8def", "Dorado": "#f4b942", "Violeta": "#ad7cff"}
+ACENTOS = {
+    "Verde ahorro": "#35c98b",
+    "Azul océano": "#5b8def",
+    "Dorado": "#f4b942",
+    "Violeta": "#ad7cff",
+}
 
 
 def iniciar_apariencia() -> None:
@@ -181,7 +204,32 @@ def aplicar_estilos(paleta: dict[str, str], acento: str) -> None:
         [data-testid="stMetric"]:before { content: "✦"; position: absolute; top: 5px; right: 12px; color: var(--meta); font-size: 1.15rem; opacity: .9; }
         [data-testid="stMetric"]:hover { transform: translateY(-4px); box-shadow: 0 15px 28px rgba(0, 0, 0, .23); }
         [data-testid="stMetricLabel"] { font-weight: 800; text-transform: uppercase; letter-spacing: .055em; font-size: .72rem; }
-        [data-testid="stMetricValue"] { font-family: "Trebuchet MS", sans-serif; font-weight: 900; }
+        [data-testid="stMetricValue"] {
+            font-family: "Trebuchet MS", sans-serif;
+            font-weight: 900;
+            font-size: clamp(1.45rem, 2.35vw, 2.45rem) !important;
+            line-height: 1.08 !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+        }
+        [data-testid="stMetricValue"] > div,
+        [data-testid="stMetricValue"] p,
+        [data-testid="stMetricValue"] span {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+            font-size: inherit !important;
+            line-height: inherit !important;
+        }
+        [data-testid="stMetric"] > div,
+        [data-testid="stMetric"] [data-testid="stMetricValue"] {
+            min-width: 0 !important;
+        }
         div.stButton > button, div.stFormSubmitButton > button {
             min-height: 46px; background: linear-gradient(180deg, #71e5b2, var(--ahorro)); color: #07130e; border: 0; border-bottom: 4px solid rgba(0,0,0,.25);
             border-radius: 13px; font-family: "Trebuchet MS", sans-serif; font-weight: 900; box-shadow: 0 5px 0 rgba(0,0,0,.12), 0 9px 18px rgba(0,0,0,.14);
@@ -200,7 +248,21 @@ def aplicar_estilos(paleta: dict[str, str], acento: str) -> None:
         .ant-mascot { position: absolute; z-index: 1; right: clamp(1rem, 7vw, 5rem); bottom: .4rem; font-size: clamp(4.6rem, 11vw, 8.5rem); filter: drop-shadow(0 8px 5px rgba(0,0,0,.28)); animation: ant-bounce 2.8s ease-in-out infinite; }
         .level-chip { position: relative; z-index: 1; display: inline-block; margin-top: 1.1rem; padding: .45rem .8rem; border-radius: 10px; background: #ffd65a; color: #152238; font: 900 .77rem "Trebuchet MS", sans-serif; letter-spacing: .04em; }
         @keyframes ant-bounce { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
-        @media (max-width: 640px) { [data-testid="stMainBlockContainer"] { padding: 1rem .85rem 2.5rem; } .game-hero { padding-right: 5.4rem; } .ant-mascot { right: .45rem; font-size: 4.2rem; } [data-testid="stMetric"] { min-height: 105px; padding: .8rem; } h2 { font-size: 1.2rem !important; } }
+        @media (max-width: 900px) {
+            [data-testid="stMetricValue"] {
+                font-size: clamp(1.25rem, 3vw, 2rem) !important;
+            }
+        }
+        @media (max-width: 640px) {
+            [data-testid="stMainBlockContainer"] { padding: 1rem .85rem 2.5rem; }
+            .game-hero { padding-right: 5.4rem; }
+            .ant-mascot { right: .45rem; font-size: 4.2rem; }
+            [data-testid="stMetric"] { min-height: 105px; padding: .8rem; }
+            [data-testid="stMetricValue"] {
+                font-size: clamp(1.05rem, 5.2vw, 1.65rem) !important;
+            }
+            h2 { font-size: 1.2rem !important; }
+        }
         /* Correcciones puntuales para controles nativos que no heredan el tema del reto. */
         [data-testid="stSelectbox"] [data-baseweb="select"] > div,
         [data-testid="stSelectbox"] [data-baseweb="select"] > div > div,
@@ -234,11 +296,20 @@ def aplicar_estilos(paleta: dict[str, str], acento: str) -> None:
         AJUSTES_OSCURO
     </style>
     """
-    reemplazos = {"FONDO": paleta["fondo"], "SUPERFICIE": paleta["superficie"], "LATERAL": paleta["lateral"], "BORDE": paleta["borde"], "TEXTO": paleta["texto"], "MUTED": paleta["muted"], "ACENTO": acento}
+    reemplazos = {
+        "FONDO": paleta["fondo"],
+        "SUPERFICIE": paleta["superficie"],
+        "LATERAL": paleta["lateral"],
+        "BORDE": paleta["borde"],
+        "TEXTO": paleta["texto"],
+        "MUTED": paleta["muted"],
+        "ACENTO": acento,
+    }
     for marcador, valor in reemplazos.items():
         estilos = estilos.replace(marcador, valor)
     # El modo claro conserva sus estilos nativos; estas correcciones se aplican solo al oscuro.
-    ajustes_oscuro = """
+    ajustes_oscuro = (
+        """
         header[data-testid="stHeader"] { background: var(--fondo) !important; }
         header[data-testid="stHeader"] *, .stApp label, .stApp [data-testid="stWidgetLabel"] p { color: var(--texto) !important; }
         [data-testid="stNumberInput"] button { background: var(--superficie) !important; border-color: var(--borde) !important; color: var(--texto) !important; }
@@ -254,14 +325,19 @@ def aplicar_estilos(paleta: dict[str, str], acento: str) -> None:
         [data-testid="stSelectbox"] [data-baseweb="select"] span,
         [data-testid="stSelectbox"] [data-baseweb="select"] svg { color: var(--texto) !important; fill: var(--texto) !important; }
         [data-baseweb="popover"] > div, [data-baseweb="popover"] [role="dialog"] { background-color: var(--superficie) !important; color: var(--texto) !important; }
-    """ if paleta["fondo"] == "#0b1220" else ""
+    """
+        if paleta["fondo"] == "#0b1220"
+        else ""
+    )
     estilos = estilos.replace("AJUSTES_OSCURO", ajustes_oscuro)
     st.markdown(estilos, unsafe_allow_html=True)
 
 
 def color_transparente(color_hex: str, opacidad: float = 0.20) -> str:
     """Convierte un color hexadecimal a RGBA para rellenar el área de la gráfica."""
-    rojo, verde, azul = (int(color_hex[posicion:posicion + 2], 16) for posicion in (1, 3, 5))
+    rojo, verde, azul = (
+        int(color_hex[posicion : posicion + 2], 16) for posicion in (1, 3, 5)
+    )
     return f"rgba({rojo}, {verde}, {azul}, {opacidad})"
 
 
@@ -277,6 +353,20 @@ def formato_balboas(valor: float) -> str:
     """Da formato monetario uniforme para toda la aplicación."""
     # El formato , .2f agrega separador de miles y exactamente dos decimales.
     return f"B/. {valor:,.2f}"
+
+
+def formato_numero_moneda(valor: float) -> str:
+    """Muestra un monto con separador de miles y exactamente dos decimales, sin B/."""
+    return f"{float(valor):,.2f}"
+
+
+def convertir_texto_moneda(valor: str, minimo: float = 0.01) -> float | None:
+    """Convierte texto monetario como 1,500.59 o 1500.59 a float."""
+    try:
+        numero = float(str(valor).replace(",", "").strip())
+    except (TypeError, ValueError):
+        return None
+    return numero if numero >= minimo else None
 
 
 # Convierte un gasto de cualquier frecuencia a su equivalente mensual.
@@ -297,7 +387,9 @@ def gasto_mensual(gasto: dict[str, Any]) -> float:
 
 
 # Calcula aportes, intereses y total para un aporte mensual y plazo determinados.
-def proyeccion(aporte_mensual: float, tasa_anual: float, meses: int) -> tuple[float, float, float]:
+def proyeccion(
+    aporte_mensual: float, tasa_anual: float, meses: int
+) -> tuple[float, float, float]:
     """Calcula aportes, intereses y total con depósitos al final de cada mes."""
     # Multiplica el aporte mensual por los meses para saber cuánto puso la persona.
     aportado = aporte_mensual * meses
@@ -315,7 +407,9 @@ def proyeccion(aporte_mensual: float, tasa_anual: float, meses: int) -> tuple[fl
 
 
 # Busca en qué mes el ahorro proyectado alcanza o supera el costo de una meta.
-def meses_para_meta(aporte_mensual: float, tasa_anual: float, meta: float) -> int | None:
+def meses_para_meta(
+    aporte_mensual: float, tasa_anual: float, meta: float
+) -> int | None:
     """Busca el primer mes que alcanza la meta; evita promesas de plazo infinito."""
     # Sin aporte o sin meta válida, no existe un plazo que se pueda calcular.
     if aporte_mensual <= 0 or meta <= 0:
@@ -343,7 +437,11 @@ def iniciar_estado() -> None:
 def reemplazar_por_simulacion(monto_diario: float) -> None:
     # Guarda en la sesión una lista con un gasto diario generado por el botón pulsado.
     st.session_state.gastos = [
-        {"nombre": f"Ahorro diario de {formato_balboas(monto_diario)}", "monto": monto_diario, "frecuencia": "Diario"}
+        {
+            "nombre": f"Ahorro diario de {formato_balboas(monto_diario)}",
+            "monto": monto_diario,
+            "frecuencia": "Diario",
+        }
     ]
 
 
@@ -364,14 +462,18 @@ st.markdown(
     unsafe_allow_html=True,
 )
 # Advierte que la aplicación es educativa y no constituye asesoramiento financiero.
-st.info("Estimación educativa: los resultados usan aportes mensuales e interés compuesto. No constituyen asesoramiento financiero.")
+st.info(
+    "Estimación educativa: los resultados usan aportes mensuales e interés compuesto. No constituyen asesoramiento financiero."
+)
 
 # Agrupa los controles de configuración dentro de la barra lateral izquierda.
 with st.sidebar:
     # Escribe el encabezado de esa barra lateral.
     st.header("Configuración")
     # Crea el campo donde la persona selecciona la tasa anual de interés.
-    tasa_anual = st.number_input("Tasa de interés anual (%)", min_value=0.0, max_value=30.0, value=4.0, step=0.25)
+    tasa_anual = st.number_input(
+        "Tasa de interés anual (%)", min_value=0.0, max_value=30.0, value=4.0, step=0.25
+    )
     # Explica que una tasa de cero permite observar el ahorro sin inversión.
     st.caption("Puedes usar 0 % para ver un ahorro sin inversión.")
     # Crea un botón para limpiar los gastos antes de atender a otro visitante.
@@ -384,7 +486,9 @@ with st.sidebar:
 # Inicia la primera sección de la aplicación.
 st.header("🐜 NIVEL 1 · Tus gastos hormiga")
 # Indica que deben usarse los gastos reales del visitante actual.
-st.caption("Ingresa los gastos reales de la persona que está realizando la simulación.")
+st.caption(
+    "Ingresa los gastos reales de la persona que está realizando la simulación. Los montos se muestran con separador de miles y 2 decimales en los resultados."
+)
 # Agrupa los campos de un gasto en un formulario para enviarlos con un solo botón.
 with st.form("agregar_gasto", clear_on_submit=True):
     # Divide el formulario en cuatro columnas con proporciones de ancho diferentes.
@@ -395,8 +499,10 @@ with st.form("agregar_gasto", clear_on_submit=True):
         nombre = st.text_input("Nombre", placeholder="Ej.: Chicha")
     # Coloca el campo monetario dentro de la segunda columna.
     with col_monto:
-        # Permite ingresar el precio; no acepta números menores que un centavo.
-        monto = st.number_input("Precio (B/.)", min_value=0.01, value=1.00, step=0.25)
+        # Permite escribir el monto normalmente; acepta también separadores de miles.
+        monto_texto = st.text_input(
+            "Precio (B/.)", value="1.00", placeholder="Ej.: 1,500.59"
+        )
     # Coloca el selector de frecuencia dentro de la tercera columna.
     with col_frecuencia:
         # Permite escoger una de las tres frecuencias que reconoce la fórmula.
@@ -410,10 +516,20 @@ with st.form("agregar_gasto", clear_on_submit=True):
 
 # Solo agrega un gasto cuando el formulario fue enviado.
 if agregar:
-    # Añade un diccionario con los datos del formulario; usa "Otro gasto" si no escribieron nombre.
-    st.session_state.gastos.append({"nombre": nombre.strip() or "Otro gasto", "monto": monto, "frecuencia": frecuencia})
-    # Recarga la página para mostrar el gasto recién agregado y recalcular resultados.
-    st.rerun()
+    monto = convertir_texto_moneda(monto_texto)
+    if monto is None:
+        st.warning("Ingresa un precio válido mayor que B/. 0.00. Ejemplo: 1,500.59")
+    else:
+        # Añade un diccionario con los datos del formulario; usa "Otro gasto" si no escribieron nombre.
+        st.session_state.gastos.append(
+            {
+                "nombre": nombre.strip() or "Otro gasto",
+                "monto": monto,
+                "frecuencia": frecuencia,
+            }
+        )
+        # Recarga la página para mostrar el gasto recién agregado y recalcular resultados.
+        st.rerun()
 
 # Muestra un aviso cuando todavía no se han ingresado gastos.
 if not st.session_state.gastos:
@@ -425,9 +541,13 @@ else:
         # Crea columnas para el texto, el equivalente mensual y el botón Eliminar.
         col_texto, col_equivalente, col_eliminar = st.columns([5, 3, 1])
         # Muestra el nombre, precio y frecuencia originales del gasto.
-        col_texto.write(f"**{gasto['nombre']}** · {formato_balboas(gasto['monto'])} · {gasto['frecuencia']}")
+        col_texto.write(
+            f"**{gasto['nombre']}** · {formato_balboas(gasto['monto'])} · {gasto['frecuencia']}"
+        )
         # Muestra el valor mensual ya convertido mediante gasto_mensual.
-        col_equivalente.caption(f"Equivale a {formato_balboas(gasto_mensual(gasto))}/mes")
+        col_equivalente.caption(
+            f"Equivale a {formato_balboas(gasto_mensual(gasto))}/mes"
+        )
         # Crea un botón único para eliminar este gasto específico.
         if col_eliminar.button("Eliminar", key=f"eliminar_{indice}"):
             # Quita de la lista el gasto que coincide con el índice de su fila.
@@ -466,99 +586,161 @@ proyecciones = []
 # Repite el cálculo para 1, 3, 5 y 10 años.
 for anios in HORIZONTES:
     # Separa los valores devueltos por proyeccion en tres variables.
-    aportado, intereses, total = proyeccion(aporte_mensual, tasa_anual, anios * MESES_POR_ANIO)
+    aportado, intereses, total = proyeccion(
+        aporte_mensual, tasa_anual, anios * MESES_POR_ANIO
+    )
     # Agrega una fila con el plazo y los tres resultados convertidos a texto monetario.
-    proyecciones.append({"Plazo": f"{anios} año" if anios == 1 else f"{anios} años", "Aportado": formato_balboas(aportado), "Intereses": formato_balboas(intereses), "Total acumulado": formato_balboas(total)})
+    proyecciones.append(
+        {
+            "Plazo": f"{anios} año" if anios == 1 else f"{anios} años",
+            "Aportado": formato_balboas(aportado),
+            "Intereses": formato_balboas(intereses),
+            "Total acumulado": formato_balboas(total),
+        }
+    )
 # Muestra la lista de filas como una tabla sin el índice técnico de Python.
 st.dataframe(proyecciones, hide_index=True, use_container_width=True)
 
 # Inicia la sección dedicada a la visualización del crecimiento.
 st.header("📊 TABLERO DE PROGRESO · Gasto vs. ahorro")
-st.caption("La diferencia entre ambas líneas representa el beneficio de ahorrar e invertir en lugar de gastar.")
+st.caption(
+    "La diferencia entre ambas líneas representa el beneficio de ahorrar e invertir en lugar de gastar."
+)
 # Crea la lista de años del 0 al 10 para el eje horizontal del gráfico.
 anios_grafico = list(range(0, 11))
 # Compara lo gastado sin cambiar hábitos con el ahorro potencial que incluye intereses.
 gastos_acumulados = [aporte_mensual * anio * MESES_POR_ANIO for anio in anios_grafico]
-ahorros_potenciales = [proyeccion(aporte_mensual, tasa_anual, anio * MESES_POR_ANIO)[2] for anio in anios_grafico]
+ahorros_potenciales = [
+    proyeccion(aporte_mensual, tasa_anual, anio * MESES_POR_ANIO)[2]
+    for anio in anios_grafico
+]
 # Crea una figura Plotly todavía vacía.
 figura = go.Figure()
 # Añade la trayectoria del dinero que se seguiría gastando.
-figura.add_trace(go.Scatter(x=anios_grafico, y=gastos_acumulados, mode="lines+markers", line={"width": 3, "color": st.session_state.color_gasto_grafica}, marker={"size": 8, "color": st.session_state.color_gasto_grafica}, name="Gasto acumulado", hovertemplate="Año %{x}<br>Gastado: B/. %{y:,.2f}<extra></extra>"))
+figura.add_trace(
+    go.Scatter(
+        x=anios_grafico,
+        y=gastos_acumulados,
+        mode="lines+markers",
+        line={"width": 3, "color": st.session_state.color_gasto_grafica},
+        marker={"size": 8, "color": st.session_state.color_gasto_grafica},
+        name="Gasto acumulado",
+        hovertemplate="Año %{x}<br>Gastado: B/. %{y:,.2f}<extra></extra>",
+    )
+)
 # Añade el ahorro potencial y rellena el área para hacer más visible el beneficio.
-figura.add_trace(go.Scatter(x=anios_grafico, y=ahorros_potenciales, mode="lines+markers", fill="tonexty", fillcolor=color_transparente(st.session_state.color_ahorro_grafica), line={"width": 4, "color": st.session_state.color_ahorro_grafica}, marker={"size": 8, "color": st.session_state.color_ahorro_grafica}, name="Ahorro potencial", hovertemplate="Año %{x}<br>Ahorro potencial: B/. %{y:,.2f}<extra></extra>"))
+figura.add_trace(
+    go.Scatter(
+        x=anios_grafico,
+        y=ahorros_potenciales,
+        mode="lines+markers",
+        fill="tonexty",
+        fillcolor=color_transparente(st.session_state.color_ahorro_grafica),
+        line={"width": 4, "color": st.session_state.color_ahorro_grafica},
+        marker={"size": 8, "color": st.session_state.color_ahorro_grafica},
+        name="Ahorro potencial",
+        hovertemplate="Año %{x}<br>Ahorro potencial: B/. %{y:,.2f}<extra></extra>",
+    )
+)
 # Configura títulos, formato monetario, interacción al pasar el cursor y márgenes.
-figura.update_layout(template=paleta_actual["grafica"], paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font={"family": "Trebuchet MS, sans-serif", "color": paleta_actual["texto"]}, xaxis_title="Años", yaxis_title="Dinero acumulado (B/.)", yaxis_tickprefix="B/. ", hovermode="x unified", legend={"orientation": "h", "y": 1.12}, margin={"l": 10, "r": 10, "t": 45, "b": 10})
+figura.update_layout(
+    template=paleta_actual["grafica"],
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font={"family": "Trebuchet MS, sans-serif", "color": paleta_actual["texto"]},
+    xaxis_title="Años",
+    yaxis_title="Dinero acumulado (B/.)",
+    yaxis_tickprefix="B/. ",
+    hovermode="x unified",
+    legend={"orientation": "h", "y": 1.12},
+    margin={"l": 10, "r": 10, "t": 45, "b": 10},
+)
 # Inserta el gráfico interactivo en la aplicación y le permite ocupar todo el ancho.
 st.plotly_chart(figura, use_container_width=True)
 
 # Inicia la sección de metas de ahorro.
 st.header("🎯 TU META · ¿Qué podrías lograr?")
-# Combina las metas sugeridas con las creadas y guardadas por los visitantes.
+
+# Carga únicamente las metas creadas manualmente por los visitantes.
 metas_personalizadas = cargar_metas_personalizadas()
-metas_disponibles = dict(METAS)
-for meta_personalizada in metas_personalizadas:
-    metas_disponibles[meta_personalizada["nombre"]] = meta_personalizada["costo"]
-# La selección de una meta recién creada se aplica antes de crear el selectbox.
-meta_pendiente = st.session_state.pop("meta_seleccionada_pendiente", None)
-if meta_pendiente in metas_disponibles:
-    st.session_state.meta_seleccionada = meta_pendiente
-# Conserva el costo escrito manualmente hasta que se cambie la meta seleccionada.
-if "meta_seleccionada" not in st.session_state or st.session_state.meta_seleccionada not in metas_disponibles:
-    st.session_state.meta_seleccionada = next(iter(metas_disponibles))
-if st.session_state.get("meta_costo_origen") != st.session_state.meta_seleccionada:
-    st.session_state.costo_meta_input = float(metas_disponibles[st.session_state.meta_seleccionada])
-    st.session_state.meta_costo_origen = st.session_state.meta_seleccionada
-# Crea dos columnas: una para escoger la meta y otra para definir su costo.
-col_meta, col_costo = st.columns(2)
-# Coloca el selector de metas dentro de la primera columna.
-with col_meta:
-    # Muestra tanto las metas predefinidas como las personalizadas guardadas.
-    nombre_meta = st.selectbox("Selecciona una meta", list(metas_disponibles), key="meta_seleccionada")
-# Coloca el campo de costo dentro de la segunda columna.
-with col_costo:
-    # Permite modificar el costo inicial asociado a la meta seleccionada.
-    costo_meta = st.number_input("Costo estimado de la meta (B/.)", min_value=1.0, step=100.0, key="costo_meta_input")
 
-# Permite añadir una meta sin alterar las metas predefinidas ni el cálculo actual.
-with st.expander("➕ Agregar nueva meta"):
-    with st.form("agregar_meta_personalizada", clear_on_submit=True):
-        col_nombre_meta, col_valor_meta, col_guardar_meta = st.columns([3, 2, 1])
-        with col_nombre_meta:
-            nueva_meta_nombre = st.text_input("Nombre de la meta", placeholder="Ej.: PlayStation 5")
-        with col_valor_meta:
-            nueva_meta_costo = st.number_input("Costo de la meta (B/.)", min_value=0.01, value=1.00, step=10.0)
-        with col_guardar_meta:
-            st.write("")
-            agregar_meta = st.form_submit_button("Agregar nueva meta", use_container_width=True)
+# Muestra directamente el formulario para que cada usuario cree su propia meta.
+with st.form("agregar_meta_personalizada", clear_on_submit=True):
+    col_nombre_meta, col_valor_meta, col_guardar_meta = st.columns([3, 2, 1])
+    with col_nombre_meta:
+        nueva_meta_nombre = st.text_input(
+            "Nombre de la meta", placeholder="Ej.: PlayStation 5"
+        )
+    with col_valor_meta:
+        nueva_meta_costo_texto = st.text_input(
+            "Costo de la meta (B/.)",
+            value="1.00",
+            placeholder="Ej.: 1,500.59",
+        )
+    with col_guardar_meta:
+        st.write("")
+        agregar_meta = st.form_submit_button(
+            "Agregar nueva meta", use_container_width=True
+        )
 
+# Valida y guarda la meta escrita por el usuario.
 if agregar_meta:
     nombre_limpio = nueva_meta_nombre.strip()
-    nombres_existentes = {nombre.casefold() for nombre in metas_disponibles}
+    nueva_meta_costo = convertir_texto_moneda(nueva_meta_costo_texto)
+    nombres_existentes = {meta["nombre"].casefold() for meta in metas_personalizadas}
+
     if not nombre_limpio:
         st.warning("Escribe un nombre para la nueva meta.")
-    elif nueva_meta_costo <= 0:
-        st.warning("El costo de la meta debe ser mayor que B/. 0.00.")
+    elif nueva_meta_costo is None:
+        st.warning("Ingresa un costo válido mayor que B/. 0.00. Ejemplo: 1,500.59")
     elif nombre_limpio.casefold() in nombres_existentes:
         st.warning("Ya existe una meta con ese nombre.")
     else:
-        metas_personalizadas.append({"nombre": nombre_limpio, "costo": float(nueva_meta_costo)})
+        nueva_meta = {"nombre": nombre_limpio, "costo": float(nueva_meta_costo)}
+        metas_personalizadas.append(nueva_meta)
         guardar_metas_personalizadas(metas_personalizadas)
-        st.session_state.meta_seleccionada_pendiente = nombre_limpio
+
+        # La meta recién creada pasa a ser la meta activa para el cálculo.
+        st.session_state.meta_activa = nueva_meta
         st.rerun()
 
-# Calcula cuántos meses se necesitan para alcanzar la meta con el ahorro actual.
-plazo_meta = meses_para_meta(aporte_mensual, tasa_anual, costo_meta)
-# Si no se puede calcular el plazo, informa cómo resolverlo.
-if plazo_meta is None:
-    st.warning("Agrega un gasto o aumenta tu ahorro mensual para calcular el plazo de esta meta.")
-# Si existe plazo, convierte el número total de meses en años y meses restantes.
+# Si ya se creó una meta en esta sesión, calcula cuánto tomaría alcanzarla.
+meta_activa = st.session_state.get("meta_activa")
+
+if meta_activa:
+    nombre_meta = str(meta_activa["nombre"])
+    costo_meta = float(meta_activa["costo"])
+
+    st.caption(
+        f"Meta actual: **{nombre_meta}** · Costo: **{formato_balboas(costo_meta)}**"
+    )
+
+    # Calcula cuántos meses se necesitan para alcanzar la meta con el ahorro actual.
+    plazo_meta = meses_para_meta(aporte_mensual, tasa_anual, costo_meta)
+
+    # Si no se puede calcular el plazo, informa cómo resolverlo.
+    if plazo_meta is None:
+        st.warning(
+            "Agrega un gasto o aumenta tu ahorro mensual para calcular el plazo de esta meta."
+        )
+    else:
+        # divmod divide por 12 y devuelve el cociente y el residuo al mismo tiempo.
+        anios_meta, meses_restantes = divmod(plazo_meta, MESES_POR_ANIO)
+        # Construye el texto adecuado según si el plazo incluye años o solo meses.
+        texto_plazo = (
+            f"{anios_meta} años y {meses_restantes} meses"
+            if anios_meta
+            else f"{meses_restantes} meses"
+        )
+        # Muestra el resultado de la meta destacado en color de éxito.
+        st.success(
+            f"Con tu ahorro actual podrías alcanzar **{nombre_meta}** "
+            f"aproximadamente en **{texto_plazo}**."
+        )
 else:
-    # divmod divide por 12 y devuelve el cociente y el residuo al mismo tiempo.
-    anios_meta, meses_restantes = divmod(plazo_meta, MESES_POR_ANIO)
-    # Construye el texto adecuado según si el plazo incluye años o solo meses.
-    texto_plazo = f"{anios_meta} años y {meses_restantes} meses" if anios_meta else f"{meses_restantes} meses"
-    # Muestra el resultado de la meta destacado en color de éxito.
-    st.success(f"Con tu ahorro actual podrías alcanzar **{nombre_meta}** aproximadamente en **{texto_plazo}**.")
+    st.caption(
+        "Agrega una meta para calcular aproximadamente cuánto tiempo te tomaría alcanzarla."
+    )
 
 # Inicia la sección que compara gastar hoy con ahorrar e invertir.
 st.header("✨ BONUS DEL RETO · Costo de oportunidad")
@@ -575,7 +757,9 @@ col_b.metric("Podrías acumular", formato_balboas(resultado_5[2]))
 # Muestra la ganancia adicional atribuible al interés compuesto.
 col_c.metric("Beneficio potencial", formato_balboas(beneficio))
 # Indica cuál fue la tasa usada para calcular la diferencia.
-st.caption(f"La diferencia es el interés potencial al ahorrar con una tasa anual de {tasa_anual:.2f} %.")
+st.caption(
+    f"La diferencia es el interés potencial al ahorrar con una tasa anual de {tasa_anual:.2f} %."
+)
 
 # Inicia la sección de botones para una demostración rápida durante la feria.
 st.header("⚡ MODO RÁPIDO · Simulador")
@@ -586,7 +770,9 @@ botones = st.columns(4)
 # Recorre cada columna junto con los montos diarios disponibles.
 for columna, monto_rapido in zip(botones, (0.50, 1.00, 2.00, 5.00)):
     # Crea un botón dentro de la columna actual y espera que sea pulsado.
-    if columna.button(f"Ahorrar {formato_balboas(monto_rapido)} al día", use_container_width=True):
+    if columna.button(
+        f"Ahorrar {formato_balboas(monto_rapido)} al día", use_container_width=True
+    ):
         # Carga el escenario correspondiente al monto elegido.
         reemplazar_por_simulacion(monto_rapido)
         # Recarga para recalcular y mostrar inmediatamente todos los resultados.
@@ -595,16 +781,29 @@ for columna, monto_rapido in zip(botones, (0.50, 1.00, 2.00, 5.00)):
 
 # Permite registrar la simulación actual sin interrumpir el uso de la calculadora.
 st.header("📝 REGISTRO DE JUGADORES")
-st.caption("Al finalizar una simulación, guárdala para incluirla en el historial y las estadísticas del proyecto.")
+st.caption(
+    "Al finalizar una simulación, guárdala para incluirla en el historial y las estadísticas del proyecto."
+)
 with st.form("guardar_participante", clear_on_submit=True):
-    participante = st.text_input("Nombre o identificador del participante", placeholder="Ej.: María G.")
-    guardar_calculo = st.form_submit_button("Guardar cálculo en el historial", use_container_width=True)
+    participante = st.text_input(
+        "Nombre o identificador del participante", placeholder="Ej.: María G."
+    )
+    guardar_calculo = st.form_submit_button(
+        "Guardar cálculo en el historial", use_container_width=True
+    )
 
 if guardar_calculo:
     if aporte_mensual <= 0:
         st.warning("Agrega al menos un gasto antes de guardar el cálculo.")
     else:
-        registrar_calculo(participante, st.session_state.gastos, tasa_anual, aporte_mensual, resultado_5[2], resultado_10[2])
+        registrar_calculo(
+            participante,
+            st.session_state.gastos,
+            tasa_anual,
+            aporte_mensual,
+            resultado_5[2],
+            resultado_10[2],
+        )
         st.success("Cálculo guardado correctamente en el historial.")
 
 
@@ -612,18 +811,32 @@ if guardar_calculo:
 st.header("🏅 SALÓN DE LOGROS · Historial y estadísticas")
 historial = cargar_historial()
 if not historial:
-    st.info("Todavía no hay participantes registrados. Guarda un cálculo para comenzar el historial.")
+    st.info(
+        "Todavía no hay participantes registrados. Guarda un cálculo para comenzar el historial."
+    )
 else:
     total_participantes = len(historial)
-    promedio_gasto = sum(float(registro.get("gasto_mensual", 0)) for registro in historial) / total_participantes
-    promedio_ahorro = sum(float(registro.get("ahorro_potencial_5_anios", 0)) for registro in historial) / total_participantes
+    promedio_gasto = (
+        sum(float(registro.get("gasto_mensual", 0)) for registro in historial)
+        / total_participantes
+    )
+    promedio_ahorro = (
+        sum(
+            float(registro.get("ahorro_potencial_5_anios", 0)) for registro in historial
+        )
+        / total_participantes
+    )
     total_gastos = sum(float(registro.get("gasto_anual", 0)) for registro in historial)
 
     estadisticas = st.columns(4)
     estadisticas[0].metric("Participantes registrados", total_participantes)
     estadisticas[1].metric("Promedio de gasto mensual", formato_balboas(promedio_gasto))
-    estadisticas[2].metric("Promedio de ahorro potencial (5 años)", formato_balboas(promedio_ahorro))
-    estadisticas[3].metric("Total de gastos anuales registrados", formato_balboas(total_gastos))
+    estadisticas[2].metric(
+        "Promedio de ahorro potencial (5 años)", formato_balboas(promedio_ahorro)
+    )
+    estadisticas[3].metric(
+        "Total de gastos anuales registrados", formato_balboas(total_gastos)
+    )
 
     # Presenta un resumen amigable; los detalles de los gastos originales siguen en el JSON local.
     filas_historial = [
@@ -632,10 +845,62 @@ else:
             "Participante": registro.get("participante", "Sin nombre"),
             "Gastos ingresados": registro.get("cantidad_gastos", 0),
             "Gasto mensual": formato_balboas(float(registro.get("gasto_mensual", 0))),
-            "Ahorro potencial a 5 años": formato_balboas(float(registro.get("ahorro_potencial_5_anios", 0))),
-            "Ahorro potencial a 10 años": formato_balboas(float(registro.get("ahorro_potencial_10_anios", 0))),
+            "Ahorro potencial a 5 años": formato_balboas(
+                float(registro.get("ahorro_potencial_5_anios", 0))
+            ),
+            "Ahorro potencial a 10 años": formato_balboas(
+                float(registro.get("ahorro_potencial_10_anios", 0))
+            ),
         }
         for registro in reversed(historial)
     ]
     st.dataframe(filas_historial, hide_index=True, use_container_width=True)
-    st.caption("Los registros se conservan localmente en historial_participantes.json, incluso al cerrar la aplicación.")
+    st.caption(
+        "Los registros se conservan localmente en historial_participantes.json, incluso al cerrar la aplicación."
+    )
+
+    # Acceso administrativo protegido mediante Streamlit Secrets.
+    st.markdown("### 🔐 Administración del historial")
+
+    try:
+        clave_maestra = st.secrets["CLAVE_MAESTRA"]
+    except Exception:
+        clave_maestra = None
+
+    if not clave_maestra:
+        st.info(
+            "Para habilitar la eliminación de registros, configura "
+            "`CLAVE_MAESTRA` en los Secrets de Streamlit."
+        )
+    else:
+        clave_ingresada = st.text_input(
+            "Clave de administrador",
+            type="password",
+            key="clave_admin_historial",
+        )
+
+        if clave_ingresada == clave_maestra:
+            st.success("Modo administrador activado.")
+
+            # Los controles para eliminar registros solo aparecen con la clave correcta.
+            for indice, registro in enumerate(historial):
+                col_datos_admin, col_eliminar_admin = st.columns([6, 1])
+
+                with col_datos_admin:
+                    st.write(
+                        f"**{registro.get('participante', 'Sin nombre')}** · "
+                        f"{registro.get('fecha', '—')}"
+                    )
+
+                with col_eliminar_admin:
+                    if st.button(
+                        "Eliminar",
+                        key=f"eliminar_historial_{indice}",
+                        use_container_width=True,
+                    ):
+                        historial.pop(indice)
+                        guardar_historial(historial)
+                        st.rerun()
+
+        elif clave_ingresada:
+            st.error("Clave de administrador incorrecta.")
